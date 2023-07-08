@@ -17,6 +17,7 @@ class ZohoConnection:
         :param code: Zoho authorization code
         :param refresh_token: Zoho refresh token
         :param access_token: Zoho access token
+        :param zaaid: Zaaid of the customer
         :param cache: Use cache file, default True, if False will ignore cache file.
             cache will be saved into .cache after each refresh or authorization code function
     '''
@@ -24,7 +25,7 @@ class ZohoConnection:
     MONITORS = {}
     MSP_CUSTOMERS = {}
     DEVICE_KEY = None
-    def __init__(self, client_id=None, client_secret=None, code=None, refresh_token=None, access_token=None, cache=True):
+    def __init__(self, client_id=None, client_secret=None, code=None, refresh_token=None, access_token=None, zaaid=None, cache=True):
         if cache:
             try:
                 self.pull_data_from_cache()
@@ -39,6 +40,7 @@ class ZohoConnection:
                 "Accept": "application/json; version=2.0"
             }
             self.access_token = access_token
+            self.zaaid = zaaid
             self.token_type = None
             # 1 minute
             self.expration_time = datetime.now().timestamp() + 60
@@ -46,6 +48,8 @@ class ZohoConnection:
             self.api_domain = "https://www.site24x7.com"
             self.auth_domain = 'https://accounts.zoho.com'
             self.code = code
+            if not self.zaaid:
+                raise Exception('No zaaid provided')
             if not self.refresh_token and not self.code:
                 raise Exception('No refresh token or code provided')
             if not self.refresh_token and self.code:
@@ -54,6 +58,7 @@ class ZohoConnection:
                 self.refresh()
             else:
                 self.headers['Authorization'] = 'Zoho-oauthtoken ' + self.access_token
+                self.headers['Cookie'] = 'zaaid=' + self.zaaid
             try:
                 # this is still experimental
                 self.set_device_key()
@@ -86,6 +91,7 @@ class ZohoConnection:
             self.expration_time = datetime.now().timestamp() + response['expires_in']
             self.expration_time_redable = datetime.fromtimestamp(self.expration_time).strftime('%Y-%m-%d %H:%M:%S')
             self.headers['Authorization'] = 'Zoho-oauthtoken ' + self.access_token
+            self.headers['Cookie'] = 'zaaid=' + self.zaaid
 
     def refresh(self):
         ''' Refresh the access token '''
@@ -107,6 +113,7 @@ class ZohoConnection:
             self.expration_time = datetime.now().timestamp() + response['expires_in']
             self.expration_time_redable = datetime.fromtimestamp(self.expration_time).strftime('%Y-%m-%d %H:%M:%S')
             self.headers['Authorization'] = 'Zoho-oauthtoken ' + self.access_token
+            self.headers['Cookie'] = 'zaaid=' + self.zaaid
         else:
             raise Exception('Error refreshing token')
         # save all data to a text file
