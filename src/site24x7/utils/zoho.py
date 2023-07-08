@@ -45,8 +45,8 @@ class ZohoConnection:
             # 1 minute
             self.expration_time = datetime.now().timestamp() + 60
             self.expration_time_redable = datetime.fromtimestamp(self.expration_time).strftime('%Y-%m-%d %H:%M:%S')
-            self.api_domain = "https://www.site24x7.com"
-            self.auth_domain = 'https://accounts.zoho.com'
+            self.api_domain = "https://www.site24x7.eu"
+            self.auth_domain = 'https://accounts.zoho.eu'
             self.code = code
             if not self.zaaid:
                 raise Exception('No zaaid provided')
