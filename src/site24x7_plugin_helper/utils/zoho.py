@@ -258,6 +258,46 @@ class ZohoConnection:
                 _dict.update({"id": key})
                 monitors.append(_dict)
         return monitors
+    
+    def get_all_monitor_groups(self):
+        ''' Get all monitor groups from site24x7 '''
+        url = '/api/monitor_groups'
+        response = self.get(url, timeout=60)
+        code = response['code']
+        message = response['message']
+        if message != 'success':
+            raise requests.exceptions.HTTPError(
+                f'Error on all monitor groups with status {response.status_code}, code: {code}, message: {message}')
+        result = {}
+        for i in response['data']:
+            result['group_id'] = i['group_id']
+            result['name'] = i['display_name']
+            result['description'] = i['description']
+        return result
+
+    def get_availability_by_monitor_group(self, group_id, period):
+        ''' Get availability summary by monitor group from site24x7 '''
+        url = f'/api/reports/availability_summary/group/{group_id}?period={period}'
+        response = self.get(url, timeout=60)
+        code = response['code']
+        message = response['message']
+        if message != 'success':
+            raise requests.exceptions.HTTPError(
+                f'Error on availability summary by monitor group with status {response.status_code}, code: {code}, message: {message}')
+        result = {}
+        result['alarm_count'] = response['data']['summary_details']['alarm_count']
+        result['down_count'] = response['data']['summary_details']['down_count']
+        result['maintenance_percentage'] = response['data']['summary_details']['maintenance_percentage']
+        result['maintenance_duration'] = response['data']['summary_details']['maintenance_duration']
+        result['availability_percentage'] = response['data']['summary_details']['availability_percentage']
+        result['availability_duration'] = response['data']['summary_details']['availability_duration']
+        result['unmanaged_percentage'] = response['data']['summary_details']['unmanaged_percentage']
+        result['unmanaged_duration'] = response['data']['summary_details']['unmanaged_duration']
+        result['downtime_percentage'] = response['data']['summary_details']['downtime_percentage']
+        result['downtime_duration'] = response['data']['summary_details']['downtime_duration']
+        result['mttr'] = response['data']['summary_details']['mttr']
+        result['mtbf'] = response['data']['summary_details']['mtbf']
+        return result
 
     def get_msp_customers(self):
         ''' Get all msp customers
