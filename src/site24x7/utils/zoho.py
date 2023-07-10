@@ -95,29 +95,29 @@ class ZohoConnection:
 
     def refresh(self):
         ''' Refresh the access token '''
-        self.did_expire()
-        url = self.auth_domain + '/oauth/v2/token'
-        data = {
-            'client_id': self.client_id,
-            'client_secret': self.client_secret,
-            'refresh_token': self.refresh_token,
-            'grant_type': 'refresh_token'
-        }
-        response = requests.post(url, data=data, timeout=10, headers=self.headers)
-        if response.status_code == 200:
-            response = json.loads(response.text)
-            if "error" in response:
-                raise Exception(response["error"])
-            self.access_token = response['access_token']
-            self.token_type = response['token_type']
-            self.expration_time = datetime.now().timestamp() + response['expires_in']
-            self.expration_time_redable = datetime.fromtimestamp(self.expration_time).strftime('%Y-%m-%d %H:%M:%S')
-            self.headers['Authorization'] = 'Zoho-oauthtoken ' + self.access_token
-            self.headers['Cookie'] = 'zaaid=' + self.zaaid
-        else:
-            raise Exception('Error refreshing token')
-        # save all data to a text file
-        self.save_data_into_file()
+        if self.did_expire():
+            url = self.auth_domain + '/oauth/v2/token'
+            data = {
+                'client_id': self.client_id,
+                'client_secret': self.client_secret,
+                'refresh_token': self.refresh_token,
+                'grant_type': 'refresh_token'
+            }
+            response = requests.post(url, data=data, timeout=10, headers=self.headers)
+            if response.status_code == 200:
+                response = json.loads(response.text)
+                if "error" in response:
+                    raise Exception(response["error"])
+                self.access_token = response['access_token']
+                self.token_type = response['token_type']
+                self.expration_time = datetime.now().timestamp() + response['expires_in']
+                self.expration_time_redable = datetime.fromtimestamp(self.expration_time).strftime('%Y-%m-%d %H:%M:%S')
+                self.headers['Authorization'] = 'Zoho-oauthtoken ' + self.access_token
+                self.headers['Cookie'] = 'zaaid=' + self.zaaid
+            else:
+                raise Exception('Error refreshing token')
+            # save all data to a text file
+            self.save_data_into_file()
 
     def save_data_into_file(self):
         ''' Save all data into a file '''
@@ -312,13 +312,15 @@ class ZohoConnection:
         return self.access_token is not None
 
     def did_expire(self):
-        ''' Raise error if the token has expired '''
+        ''' Check if the token has expired '''
         time = datetime.now().timestamp()
         experition_time = (self.expration_time - time) / 60
         if experition_time < 5:
             print(f'Access expires in: {experition_time} minutes')
+            return False
         if time > self.expration_time:
             print('Access token expired')
+            return True
 
     def set_device_key(self):
         ''' Set the device key '''
