@@ -315,7 +315,7 @@ class ZohoConnection:
         ''' Check if the token has expired '''
         time = datetime.now().timestamp()
         experition_time = (self.expration_time - time) / 60
-        if experition_time < 5 or experition_time > 0:
+        if experition_time < 5 and experition_time > 0:
             print(f'Access expires in: {experition_time} minutes')
             return False
         if time > self.expration_time:
