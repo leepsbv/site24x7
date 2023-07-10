@@ -320,7 +320,7 @@ class ZohoConnection:
         if experition_time < 5:
             print(f'Access expires in: {experition_time} minutes')
         if time > self.expration_time:
-            raise Exception('Token expired')
+            print('Access token expired')
 
     def set_device_key(self):
         ''' Set the device key '''
