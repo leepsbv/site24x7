@@ -272,7 +272,6 @@ class ZohoConnection:
         for i in response['data']:
             result['group_id'] = i['group_id']
             result['name'] = i['display_name']
-            result['description'] = i['description']
         return result
     
     def get_availability_by_monitor_group(self, group_id, period):
