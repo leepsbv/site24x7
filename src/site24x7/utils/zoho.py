@@ -268,10 +268,9 @@ class ZohoConnection:
         if message != 'success':
             raise requests.exceptions.HTTPError(
                 f'Error on all monitor groups with status {response.status_code}, code: {code}, message: {message}')
-        result = {}
+        result = []
         for i in response['data']:
-            result['group_id'] = i['group_id']
-            result['name'] = i['display_name']
+            result.append([i['group_id'], i['display_name']])
         return result
     
     def get_availability_by_monitor_group(self, group_id, period):
