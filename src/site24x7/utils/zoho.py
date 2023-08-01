@@ -295,6 +295,7 @@ class ZohoConnection:
         result['downtime_duration'] = response['data']['summary_details']['downtime_duration']
         result['mttr'] = response['data']['summary_details']['mttr']
         result['mtbf'] = response['data']['summary_details']['mtbf']
+        result['date'] = response['data']['info']['generated_time']
         return result
 
     def get_msp_customers(self):
