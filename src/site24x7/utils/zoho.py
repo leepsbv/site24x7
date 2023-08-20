@@ -131,7 +131,8 @@ class ZohoConnection:
         self.refresh()
         url = self.api_domain + url
         headers = self.headers
-        response = requests.get(url, params=params, headers=headers, timeout=20)
+        response = requests.get(
+            url, params=params, headers=headers, timeout=timeout)
         json_response = json.loads(response.text)
         if response.status_code == 200:
             return json_response
