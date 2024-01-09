@@ -37,7 +37,7 @@ class ZohoConnection:
             self.refresh_token = refresh_token
             self.headers = {
                 "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
-                "Accept": "application/json; version=2.0"
+                "Accept": "application/json; version=2.1"
             }
             self.access_token = access_token
             self.zaaid = zaaid
@@ -147,6 +147,20 @@ class ZohoConnection:
         url = self.api_domain + url
         headers = self.headers
         response = requests.put(url, params=params, headers=headers, timeout=20)
+        json_response = json.loads(response.text)
+        if response.status_code == 200:
+            return json_response
+        else:
+            code = json_response['code']
+            message = json_response['message']
+            raise requests.exceptions.HTTPError(f'Error getting response with status {response.status_code}, code: {code}, message: {message}')
+    
+    def post(self, url, params:dict=None) -> dict:
+        ''' POST request '''
+        self.refresh()
+        url = self.api_domain + url
+        headers = self.headers
+        response = requests.post(url, params=params, headers=headers, timeout=20)
         json_response = json.loads(response.text)
         if response.status_code == 200:
             return json_response
@@ -264,6 +278,55 @@ class ZohoConnection:
         ''' Get all monitor groups from site24x7 '''
         url = '/api/monitor_groups'
         response = self.get(url, timeout=60)
+        code = response['code']
+        message = response['message']
+        if message != 'success':
+            raise requests.exceptions.HTTPError(
+                f'Error on all monitor groups with status {response.status_code}, code: {code}, message: {message}')
+        result = []
+        for i in response['data']:
+            result.append([i['group_id'], i['display_name']])
+        return result
+    
+    def get_msp_threshold_profiles(self):
+        ''' List of all MSP Threshold and Availability Profiles from site24x7 '''
+        url = '/api/msp/threshold_profiles'
+        response = self.get(url, timeout=60)
+        code = response['code']
+        message = response['message']
+        if message != 'success':
+            raise requests.exceptions.HTTPError(
+                f'Error on all monitor groups with status {response.status_code}, code: {code}, message: {message}')
+        result = []
+        for i in response['data']:
+            # TODO set correct values
+            result.append([i['group_id'], i['display_name']])
+        return result
+    
+    def get_user_groups(self):
+        ''' List of all User Groups from site24x7 '''
+        url = '/api/user_groups'
+        response = self.get(url, timeout=60)
+        code = response['code']
+        message = response['message']
+        if message != 'success':
+            raise requests.exceptions.HTTPError(
+                f'Error on all monitor groups with status {response.status_code}, code: {code}, message: {message}')
+        result = []
+        for i in response['data']:
+            result.append([i['user_group_id'], i['display_name']])
+        return result
+    
+    def create_monitor_group(self, display_name, healthcheck_profile_id, notification_profile_id, user_group_ids):
+        ''' Get all monitor groups from site24x7 '''
+        url = '/api/monitor_groups'
+        data = {
+            'display_name': display_name,
+            'healthcheck_profile_id': healthcheck_profile_id,
+            'notification_profile_id': notification_profile_id,
+            'user_group_ids': [ user_group_ids ],
+        }
+        response = self.post(url, params=data, timeout=60)
         code = response['code']
         message = response['message']
         if message != 'success':
