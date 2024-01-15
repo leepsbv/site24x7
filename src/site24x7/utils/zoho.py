@@ -358,7 +358,7 @@ class ZohoConnection:
             'notification_profile_id': notification_profile_id,
             'user_group_ids': [ user_group_ids ],
         }
-        response = self.post(url, params=data, timeout=60)
+        response = self.post(url, params=data)
         code = response['code']
         message = response['message']
         if message != 'success':
@@ -366,7 +366,7 @@ class ZohoConnection:
                 f'Error on all monitor groups with status {response.status_code}, code: {code}, message: {message}')
         result = []
         for i in response['data']:
-            result.append([i['group_id'], i['display_name']])
+            result.append([i['group_id'], i['display_name'], i['monitors']])
         return result
     
     def get_availability_by_monitor_group(self, group_id, period):
