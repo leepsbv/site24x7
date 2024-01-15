@@ -178,7 +178,6 @@ class ZohoConnection:
         headers = self.headers
         response = requests.post(url, data=data, headers=headers, timeout=20)
         json_response = json.loads(response.text)
-        print(response)
         if response.status_code == 200:
             return json_response
         else:
@@ -305,10 +304,10 @@ class ZohoConnection:
             result.append([i['group_id'], i['display_name']])
         return result
     
-    def get_msp_threshold_profiles(self):
-        ''' List of all MSP Threshold and Availability Profiles from site24x7 '''
-        url = '/api/msp/threshold_profiles'
-        response = self.getWithoutZaaid(url, timeout=60)
+    def get_threshold_profiles(self):
+        ''' List of all Threshold and Availability Profiles from site24x7 '''
+        url = '/api/threshold_profiles'
+        response = self.get(url, timeout=60)
         code = response['code']
         message = response['message']
         if message != 'success':
@@ -321,10 +320,10 @@ class ZohoConnection:
         return result
     
 
-    def get_msp_notification_profiles(self):
-        ''' List of all MSP Notification Profiles from site24x7 '''
-        url = '/api/msp/notification_profiles'
-        response = self.getWithoutZaaid(url, timeout=60)
+    def get_notification_profiles(self):
+        ''' List of all Notification Profiles from site24x7 '''
+        url = '/api/notification_profiles'
+        response = self.get(url, timeout=60)
         code = response['code']
         message = response['message']
         if message != 'success':
