@@ -140,6 +140,22 @@ class ZohoConnection:
             code = json_response['code']
             message = json_response['message']
             raise requests.exceptions.HTTPError(f'Error getting response with status {response.status_code}, code: {code}, message: {message}')
+    
+    def getWithoutZaaid(self, url, params:dict=None, timeout:int=20) -> dict:
+        ''' GET request '''
+        self.refresh()
+        url = self.api_domain + url
+        headers = self.headers
+        del headers['Cookie']
+        response = requests.get(
+            url, params=params, headers=headers, timeout=timeout)
+        json_response = json.loads(response.text)
+        if response.status_code == 200:
+            return json_response
+        else:
+            code = json_response['code']
+            message = json_response['message']
+            raise requests.exceptions.HTTPError(f'Error getting response with status {response.status_code}, code: {code}, message: {message}')
 
     def put(self, url, params:dict=None) -> dict:
         ''' PUT request '''
@@ -291,7 +307,7 @@ class ZohoConnection:
     def get_msp_threshold_profiles(self):
         ''' List of all MSP Threshold and Availability Profiles from site24x7 '''
         url = '/api/msp/threshold_profiles'
-        response = self.get(url, timeout=60)
+        response = self.getWithoutZaaid(url, timeout=60)
         code = response['code']
         message = response['message']
         if message != 'success':
@@ -300,7 +316,23 @@ class ZohoConnection:
         result = []
         for i in response['data']:
             # TODO set correct values
-            result.append([i['group_id'], i['display_name']])
+            result.append([i['profile_name'], i['profile_id'], i['type']])
+        return result
+    
+
+    def get_msp_notification_profiles(self):
+        ''' List of all MSP Notification Profiles from site24x7 '''
+        url = '/api/msp/notification_profiles'
+        response = self.getWithoutZaaid(url, timeout=60)
+        code = response['code']
+        message = response['message']
+        if message != 'success':
+            raise requests.exceptions.HTTPError(
+                f'Error on all monitor groups with status {response.status_code}, code: {code}, message: {message}')
+        result = []
+        for i in response['data']:
+            # TODO set correct values
+            result.append([i['profile_name'], i['profile_id']])
         return result
     
     def get_user_groups(self):
