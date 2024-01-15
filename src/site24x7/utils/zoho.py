@@ -147,7 +147,7 @@ class ZohoConnection:
         url = self.api_domain + url
         headers = self.headers
         print(headers)
-        del headers['Cookie']
+        headers.pop('Cookie', None)
         response = requests.get(
             url, params=params, headers=headers, timeout=timeout)
         json_response = json.loads(response.text)
