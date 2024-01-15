@@ -181,7 +181,7 @@ class ZohoConnection:
         if response.status_code == 200:
             return json_response
         else:
-            code = json_response['code']
+            code = json_response['error_code']
             message = json_response['message']
             raise requests.exceptions.HTTPError(f'Error getting response with status {response.status_code}, code: {code}, message: {message}')
 
