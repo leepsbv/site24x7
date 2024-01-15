@@ -171,12 +171,12 @@ class ZohoConnection:
             message = json_response['message']
             raise requests.exceptions.HTTPError(f'Error getting response with status {response.status_code}, code: {code}, message: {message}')
     
-    def post(self, url, params:dict=None) -> dict:
+    def post(self, url, data:dict=None) -> dict:
         ''' POST request '''
         self.refresh()
         url = self.api_domain + url
         headers = self.headers
-        response = requests.post(url, params=params, headers=headers, timeout=20)
+        response = requests.post(url, data=data, headers=headers, timeout=20)
         json_response = json.loads(response.text)
         if response.status_code == 200:
             return json_response
@@ -358,7 +358,7 @@ class ZohoConnection:
             'notification_profile_id': notification_profile_id,
             'user_group_ids': [ user_group_ids ],
         }
-        response = self.post(url, params=data)
+        response = self.post(url, data=data)
         code = response['code']
         message = response['message']
         if message != 'success':
