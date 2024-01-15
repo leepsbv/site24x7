@@ -146,6 +146,7 @@ class ZohoConnection:
         self.refresh()
         url = self.api_domain + url
         headers = self.headers
+        print(headers)
         del headers['Cookie']
         response = requests.get(
             url, params=params, headers=headers, timeout=timeout)
