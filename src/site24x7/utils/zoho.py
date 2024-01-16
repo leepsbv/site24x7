@@ -141,9 +141,15 @@ class ZohoConnection:
         if response.status_code == 200:
             return json_response
         else:
-            code = json_response['code']
+            try:
+                code = json_response['code']
+            except KeyError:
+                code = json_response['error_code']
             message = json_response['message']
-            raise requests.exceptions.HTTPError(f'Error getting response with status {response.status_code}, code: {code}, message: {message}')
+            if message == "Resource not found.":
+                return message
+            else:
+                raise requests.exceptions.HTTPError(f'Error getting response with status {response.status_code}, code: {code}, message: {message}')
     
     def getWithoutZaaid(self, url, params:dict=None, timeout:int=20) -> dict:
         ''' GET request '''
@@ -342,7 +348,10 @@ class ZohoConnection:
         ''' List of all Notification Profiles from site24x7 '''
         url = f'/api/monitors/name/{name}'
         response = self.get(url, timeout=60)
-        code = response['code']
+        try:
+            code = response['code']
+        except KeyError:
+            code = response['error_code']
         message = response['message']
         if message != 'success':
             if message == "Resource not found.":
