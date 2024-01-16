@@ -20,12 +20,14 @@ class ZohoConnection:
         :param zaaid: Zaaid of the customer
         :param cache: Use cache file, default True, if False will ignore cache file.
             cache will be saved into .cache after each refresh or authorization code function
+        :param silence: Show or hide console printing, default False, if True it will hide console printing
     '''
     MONITOR_GRUPS = {}
     MONITORS = {}
     MSP_CUSTOMERS = {}
     DEVICE_KEY = None
-    def __init__(self, client_id=None, client_secret=None, code=None, refresh_token=None, access_token=None, zaaid=None, cache=True):
+    def __init__(self, client_id=None, client_secret=None, code=None, refresh_token=None, access_token=None, zaaid=None, cache=True, silence=False):
+        self.silence = silence
         if cache:
             try:
                 self.pull_data_from_cache()
@@ -63,7 +65,8 @@ class ZohoConnection:
                 # this is still experimental
                 self.set_device_key()
             except Exception as exp:
-                print(exp)
+                if not self.silence:
+                    print(exp)
 
     def pull_data_from_cache(self):
         ''' Pull data from cache file '''
@@ -412,10 +415,12 @@ class ZohoConnection:
         time = datetime.now().timestamp()
         experition_time = (self.expration_time - time) / 60
         if experition_time < 5 and experition_time > 0:
-            print(f'Access expires in: {experition_time} minutes')
+            if not self.silence:
+                print(f'Access expires in: {experition_time} minutes')
             return False
         if time > self.expration_time:
-            print('Access token expired')
+            if not self.silence:
+                print('Access token expired')
             return True
 
     def set_device_key(self):
@@ -427,7 +432,8 @@ class ZohoConnection:
             *This function is still in development. '''
         url = '/api/device_key'
         response = self.get(url)
-        print("get_device_key", response)
+        if not self.silence:
+            print("get_device_key", response)
         return response['data']['device_key']
 
     def poll_monitor(self, monitor_id):
@@ -468,14 +474,15 @@ class ZohoConnection:
             maintenance_count = data['maintenance']['count']
             discovery_count = data['discovery']['count']
             total_count = data['total']['count']
-            print("####################")
-            print(f"Total: {total_count}")
-            print(f"Up: {up_count}")
-            print(f"Down: {down_count}")
-            print(f"Critical: {critical_count}")
-            print(f"Trouble: {trouble_count}")
-            print(f"Suspended: {suspended_count}")
-            print("####################")
+            if not self.silence:
+                print("####################")
+                print(f"Total: {total_count}")
+                print(f"Up: {up_count}")
+                print(f"Down: {down_count}")
+                print(f"Critical: {critical_count}")
+                print(f"Trouble: {trouble_count}")
+                print(f"Suspended: {suspended_count}")
+                print("####################")
             return data
         else:
             return None
@@ -485,17 +492,21 @@ class ZohoConnection:
         for i in name_list:
             monitor = self.get_monitor_by_name(i)
             if not monitor:
-                print(f"Monitor {i} not found")
+                if not self.silence:
+                    print(f"Monitor {i} not found")
                 continue
             self.suspend_monitor(monitor['id'])
-            print(f"Suspended {i['name']}")
+            if not self.silence:
+                print(f"Suspended {i['name']}")
 
     def activate_given_plugin_name_list(self, name_list:list):
         ''' Activate a list of monitors '''
         for i in name_list:
             monitor = self.get_monitor_by_name(i)
             if not monitor:
-                print(f"Monitor {i} not found")
+                if not self.silence:
+                    print(f"Monitor {i} not found")
                 continue
             self.activate_monitor(monitor['id'])
-            print(f"Suspended {i['name']}")
+            if not self.silence:
+                print(f"Suspended {i['name']}")
