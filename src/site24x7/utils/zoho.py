@@ -27,13 +27,14 @@ class ZohoConnection:
     MSP_CUSTOMERS = {}
     DEVICE_KEY = None
     def __init__(self, client_id=None, client_secret=None, code=None, refresh_token=None, access_token=None, zaaid=None, cache=True, silence=False):
-        self.silence = silence
         if cache:
             try:
                 self.pull_data_from_cache()
+                self.silence = silence
             except FileNotFoundError:
                 cache = False
         if not cache:
+            self.silence = silence
             self.client_id = client_id
             self.client_secret = client_secret
             self.refresh_token = refresh_token
