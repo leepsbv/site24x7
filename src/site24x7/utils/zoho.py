@@ -180,7 +180,7 @@ class ZohoConnection:
         self.refresh()
         url = self.api_domain + url
         headers = self.headers
-        response = requests.post(url, json=data, headers=headers, timeout=20)
+        response = requests.post(url, json=data, headers=headers, timeout=60)
         json_response = json.loads(response.text)
         if response.ok:
             return json_response
@@ -319,7 +319,6 @@ class ZohoConnection:
                 f'Error on all monitor groups with status {response.status_code}, code: {code}, message: {message}')
         result = []
         for i in response['data']:
-            # TODO set correct values
             result.append([i['profile_name'], i['profile_id'], i['type']])
         return result
     
@@ -335,9 +334,27 @@ class ZohoConnection:
                 f'Error on all monitor groups with status {response.status_code}, code: {code}, message: {message}')
         result = []
         for i in response['data']:
-            # TODO set correct values
             result.append([i['profile_name'], i['profile_id']])
         return result
+    
+    
+    def retrieve_monitor_by_name(self, name):
+        ''' List of all Notification Profiles from site24x7 '''
+        url = f'/api/monitors/name/{name}'
+        response = self.get(url, timeout=60)
+        code = response['code']
+        message = response['message']
+        if message != 'success':
+            if message == "Resource not found.":
+                return message
+            else:
+                raise requests.exceptions.HTTPError(
+                    f'Error on all monitor groups with status {response.status_code}, code: {code}, message: {message}')
+        result = []
+        for i in response['data']:
+            result.append([i['monitor_id'], i['display_name']])
+        return result
+    
     
     def get_user_groups(self):
         ''' List of all User Groups from site24x7 '''
