@@ -176,9 +176,9 @@ class ZohoConnection:
         self.refresh()
         url = self.api_domain + url
         headers = self.headers
-        response = requests.post(url, data=data, headers=headers, timeout=20)
+        response = requests.post(url, json=data, headers=headers, timeout=20)
         json_response = json.loads(response.text)
-        if response.status_code == 200:
+        if response.ok:
             return json_response
         else:
             code = json_response['error_code']
@@ -364,9 +364,8 @@ class ZohoConnection:
         if message != 'success':
             raise requests.exceptions.HTTPError(
                 f'Error on all monitor groups with status {response.status_code}, code: {code}, message: {message}')
-        result = []
-        for i in response['data']:
-            result.append([i['group_id'], i['display_name'], i['monitors']])
+        response = response['data']
+        result = ([response['group_id'], response['display_name']])
         return result
     
     def get_availability_by_monitor_group(self, group_id, period):
