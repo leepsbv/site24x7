@@ -147,7 +147,7 @@ class ZohoConnection:
                 code = json_response['error_code']
             message = json_response['message']
             if message == "Resource not found.":
-                return message
+                return json_response
             else:
                 raise requests.exceptions.HTTPError(f'Error getting response with status {response.status_code}, code: {code}, message: {message}')
     
@@ -359,10 +359,8 @@ class ZohoConnection:
             else:
                 raise requests.exceptions.HTTPError(
                     f'Error on all monitor groups with status {response.status_code}, code: {code}, message: {message}')
-        result = []
-        for i in response['data']:
-            result.append([i['monitor_id'], i['display_name']])
-        return result
+        result = response['data']
+        return (result['monitor_id'], result['display_name'])
     
     
     def get_user_groups(self):
