@@ -32,6 +32,7 @@ class ZohoConnection:
                 self.pull_data_from_cache()
                 self.silence = silence
                 self.zaaid = zaaid
+                self.headers['Cookie'] = 'zaaid=' + self.zaaid
             except FileNotFoundError:
                 cache = False
         if not cache:
