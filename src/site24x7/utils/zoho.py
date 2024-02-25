@@ -422,6 +422,31 @@ class ZohoConnection:
         result['mtbf'] = response['data']['summary_details']['mtbf']
         result['date'] = response['data']['info']['formatted_start_time']
         return result
+    
+    def get_availability_by_monitor(self, monitor_id, period):
+        ''' Get availability by monitor from site24x7 '''
+        url = f'/api/availability/monitor/{monitor_id}?period={period}'
+        response = self.get(url, timeout=60)
+        code = response['code']
+        message = response['message']
+        if message != 'success':
+            raise requests.exceptions.HTTPError(
+                f'Error on availability by monitor with status {response.status_code}, code: {code}, message: {message}')
+        result = {}
+        result['alarm_count'] = response['data']['summary_details']['alarm_count']
+        result['down_count'] = response['data']['summary_details']['down_count']
+        result['maintenance_percentage'] = response['data']['summary_details']['maintenance_percentage']
+        result['maintenance_duration'] = response['data']['summary_details']['maintenance_duration']
+        result['availability_percentage'] = response['data']['summary_details']['availability_percentage']
+        result['availability_duration'] = response['data']['summary_details']['availability_duration']
+        result['unmanaged_percentage'] = response['data']['summary_details']['unmanaged_percentage']
+        result['unmanaged_duration'] = response['data']['summary_details']['unmanaged_duration']
+        result['downtime_percentage'] = response['data']['summary_details']['downtime_percentage']
+        result['downtime_duration'] = response['data']['summary_details']['downtime_duration']
+        result['mttr'] = response['data']['summary_details']['mttr']
+        result['mtbf'] = response['data']['summary_details']['mtbf']
+        result['date'] = response['data']['info']['formatted_start_time']
+        return result
 
     def get_msp_customers(self):
         ''' Get all msp customers
