@@ -31,6 +31,7 @@ class ZohoConnection:
             try:
                 self.pull_data_from_cache()
                 self.silence = silence
+                self.zaaid = zaaid
             except FileNotFoundError:
                 cache = False
         if not cache:
